@@ -1,20 +1,28 @@
+import { useQuery } from '@tanstack/react-query'
 import { getStudents } from 'apis/Students.api'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
-import { Student_List } from 'types/Students.type'
+import { useQueryString } from 'utils/utils'
 
 export default function Students() {
-  const [students, setStudents] = useState<Student_List>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  useEffect(() => {
-    setIsLoading(true)
-    getStudents(1, 10).then((res) => {
-      setStudents(res.data)
-    }).finally(() => {
-      setIsLoading(false)
-    })
-  }, [])
+  // const [students, setStudents] = useState<Student_List>([])
+  // const [isLoading, setIsLoading] = useState<boolean>(false)
+  // useEffect(() => {
+  //   setIsLoading(true)
+  //   getStudents(1, 10).then((res) => {
+  //     setStudents(res.data)
+  //   }).finally(() => {
+  //     setIsLoading(false)
+  //   })
+  // }, [])
 
+  const queryString: { page?: string } = useQueryString();
+  const page = Number(queryString.page) || 1
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["students", page],
+    queryFn: () => getStudents(page, 10)
+  })
   return (
     <div>
       <h1 className='text-lg'>Students</h1>
@@ -63,7 +71,7 @@ export default function Students() {
                 </tr>
               </thead>
               <tbody>
-                {students.map(student => (
+                {data?.data.map(student => (
                   <tr key={student.id} className='border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600'>
                     <td className='py-4 px-6'>{student.id}</td>
                     <td className='py-4 px-6'>
