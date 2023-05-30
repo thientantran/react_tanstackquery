@@ -36,6 +36,7 @@ export default function AddStudent() {
     queryFn: () => getStudent(id as string),
     enabled: id !== undefined,
     onSuccess: (data) => {
+      console.log(data.data)
       setFormState(data.data)
     }
   })
@@ -45,11 +46,12 @@ export default function AddStudent() {
   })
 
   const errorForm: FormError = useMemo(() => {
-    if (isAxiosError<{ error: FormError }>(addStudentMutation.error) && addStudentMutation.error.response?.status === 422) {
-      return addStudentMutation.error.response?.data.error
+    const error = isAddMode ? addStudentMutation.error : updateStudentMutation.error
+    if (isAxiosError<{ error: FormError }>(error) && error.response?.status === 422) {
+      return error.response?.data.error
     }
     return null
-  }, [addStudentMutation.error])
+  }, [addStudentMutation.error, isAddMode, updateStudentMutation.error])
 
   const handleChange = (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormState((prev) => ({ ...prev, [name]: event.target.value }))
@@ -124,8 +126,8 @@ export default function AddStudent() {
                   id='gender-1'
                   type='radio'
                   name='gender'
-                  value="male"
-                  checked={formState.gender === "male"}
+                  value="Male"
+                  checked={formState.gender === "Male"}
                   onChange={handleChange('gender')}
                   className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
@@ -138,8 +140,8 @@ export default function AddStudent() {
                   id='gender-2'
                   type='radio'
                   name='gender'
-                  value="female"
-                  checked={formState.gender === "female"}
+                  value="Female"
+                  checked={formState.gender === "Female"}
                   onChange={handleChange('gender')}
                   className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
@@ -152,8 +154,8 @@ export default function AddStudent() {
                   id='gender-3'
                   type='radio'
                   name='gender'
-                  value="other"
-                  checked={formState.gender === "other"}
+                  value="Other"
+                  checked={formState.gender === "Other"}
                   onChange={handleChange('gender')}
                   className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
