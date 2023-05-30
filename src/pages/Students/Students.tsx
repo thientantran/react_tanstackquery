@@ -22,7 +22,10 @@ export default function Students() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["students", page],
-    queryFn: () => getStudents(page, 10)
+    queryFn: () => getStudents(page, 10),
+    // staleTime: 10*6000,
+    // cacheTime: 5 * 1000
+    keepPreviousData: true
   })
 
   const totalStudentsCount = Number(data?.headers['x-total-count'] || 0)
