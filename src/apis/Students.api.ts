@@ -10,4 +10,6 @@ export const getStudents = (page: number | string, limit: number | string) => {
     })
 }
 
+export const getStudent = (id: number | string) => http.get<Student>(`students/${id}`)
+
 export const addStudent = (student: Omit<Student, 'id'>) => http.post<Student_List>('/students', student)
