@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { addStudent, getStudent } from 'apis/Students.api'
+import { addStudent, getStudent, updateStudent } from 'apis/Students.api'
 import { useMemo, useState } from 'react'
 import { useMatch, useParams } from 'react-router-dom'
 import { Student } from 'types/Students.type'
 import { isAxiosError } from 'utils/utils'
 
-type FormStateType = Omit<Student, 'id'>
+type FormStateType = Omit<Student, 'id'> | Student
 const initialFormState: FormStateType = {
   avatar: '',
   email: '',
@@ -24,7 +24,7 @@ export default function AddStudent() {
   const addMatch = useMatch("students/add")
   const isAddMode = Boolean(addMatch)
   const { id } = useParams()
-  const { mutate, error, data, reset, mutateAsync } = useMutation({
+  const addStudentMutation = useMutation({
     mutationFn: (body: FormStateType) => {
       return addStudent(body)
     }
@@ -39,36 +39,48 @@ export default function AddStudent() {
     }
   })
 
+  const updateStudentMutation = useMutation({
+    mutationFn: (_) => updateStudent(id as string, formState as Student)
+  })
+
   const errorForm: FormError = useMemo(() => {
-    if (isAxiosError<{ error: FormError }>(error) && error.response?.status === 422) {
-      return error.response?.data.error
+    if (isAxiosError<{ error: FormError }>(addStudentMutation.error) && addStudentMutation.error.response?.status === 422) {
+      return addStudentMutation.error.response?.data.error
     }
     return null
-  }, [error])
+  }, [addStudentMutation.error])
 
   const handleChange = (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormState((prev) => ({ ...prev, [name]: event.target.value }))
-    if (data || error) {
-      reset()
+    if (addStudentMutation.data || addStudentMutation.error) {
+      addStudentMutation.reset()
     }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    // mutate(formState, {
-    //   onSuccess: () => setFormState(initialFormState)
+    if (isAddMode) {
+      addStudentMutation.mutate(formState, {
+        onSuccess: () => setFormState(initialFormState)
+      })
+    } else {
+      updateStudentMutation.mutate(undefined, {
+        onSuccess: (data) => {
+          console.log(data)
+        }
+      })
+    }
 
-    // })
 
     // cach 2:
-    try {
-      const data = await mutateAsync(formState)
-      console.log(data)
-      // setFormState(initialFormState)
-    } catch (error) {
+    // try {
+    //   const data = await mutateAsync(formState)
+    //   console.log(data)
+    //   // setFormState(initialFormState)
+    // } catch (error) {
 
-      console.log(error)
-    }
+    //   console.log(error)
+    // }
 
   }
   return (
