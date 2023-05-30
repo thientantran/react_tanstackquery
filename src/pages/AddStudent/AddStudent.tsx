@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { addStudent, getStudent, updateStudent } from 'apis/Students.api'
 import { useMemo, useState } from 'react'
 import { useMatch, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { Student } from 'types/Students.type'
 import { isAxiosError } from 'utils/utils'
 
@@ -61,12 +62,15 @@ export default function AddStudent() {
     event.preventDefault()
     if (isAddMode) {
       addStudentMutation.mutate(formState, {
-        onSuccess: () => setFormState(initialFormState)
+        onSuccess: () => {
+          setFormState(initialFormState)
+          toast.success("Add thanh cong")
+        }
       })
     } else {
       updateStudentMutation.mutate(undefined, {
-        onSuccess: (data) => {
-          console.log(data)
+        onSuccess: () => {
+          toast.success("update thanh cong")
         }
       })
     }
@@ -259,7 +263,7 @@ export default function AddStudent() {
           type='submit'
           className='w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:w-auto'
         >
-          Submit
+          {isAddMode ? "Add" : "Update"}
         </button>
       </form>
     </div>
