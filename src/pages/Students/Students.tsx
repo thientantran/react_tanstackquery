@@ -23,7 +23,7 @@ export default function Students() {
 
   const studentsQuery = useQuery({
     queryKey: ["students", page],
-    queryFn: () => getStudents(page, 10),
+    queryFn: ({ signal }) => getStudents(page, 10, signal),
     // staleTime: 10*6000,
     // cacheTime: 5 * 1000
     keepPreviousData: true
@@ -56,9 +56,26 @@ export default function Students() {
     })
   }
 
+  const refetchStudents = () => {
+    studentsQuery.refetch()
+  }
+
+  const cancelRequestStudents = () => {
+    queryClient.cancelQueries({ queryKey: ['students', page] })
+  }
   return (
     <div>
       <h1 className='text-lg'>Students</h1>
+      <div>
+        <button className='mt-6 rounded bg-pink-700 px-5 py-2 text-white' onClick={refetchStudents}>
+          Refetch Students
+        </button>
+      </div>
+      <div>
+        <button className='mt-6 rounded bg-pink-700 px-5 py-2 text-white' onClick={cancelRequestStudents}>
+          Cancel Request Students
+        </button>
+      </div>
       <Link to='/students/add' type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Add Student</Link>
       {studentsQuery.isLoading && (
         <Fragment>
