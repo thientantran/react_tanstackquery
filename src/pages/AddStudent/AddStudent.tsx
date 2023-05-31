@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addStudent, getStudent, updateStudent } from 'apis/Students.api'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMatch, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Student } from 'types/Students.type'
@@ -32,15 +32,27 @@ export default function AddStudent() {
     }
   })
 
-  useQuery({
+  const studentQuery = useQuery({
     queryKey: ['student', id],
     queryFn: () => getStudent(id as string),
     enabled: id !== undefined,
+    staleTime: 10 * 1000,
+    // mac du da prefetiching khi hover, nhung khi click vao edit
+    // thi van call api goi lai vi staleTime la 0, ne bi noi lai ==> set staleTime
+    // nhung trong thoi gian con staleTime, khi click vao edit thi lai ko Show data len
+    // do cai ham useQuery nay ko duoc chay, do trong staleTime, nen ko co onSuccess
+    //==> tao function va dung useEffect
     onSuccess: (data) => {
       console.log(data.data)
       setFormState(data.data)
     }
   })
+
+  useEffect(() => {
+    if (studentQuery.data) {
+      setFormState(studentQuery.data.data)
+    }
+  }, [studentQuery.data])
 
   const updateStudentMutation = useMutation({
     mutationFn: (_) => updateStudent(id as string, formState as Student),

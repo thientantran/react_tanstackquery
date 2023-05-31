@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { deleteStudent, getStudents } from 'apis/Students.api'
+import { deleteStudent, getStudent, getStudents } from 'apis/Students.api'
 import classNames from 'classnames'
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
@@ -47,6 +47,15 @@ export default function Students() {
   const handleDelete = (id: number | string) => {
     deleteStudentMutation.mutate(id)
   }
+
+  const handlePrefetchStudent = (id: number) => {
+    queryClient.prefetchQuery(['student', String(id)], {
+      queryFn: () => getStudent(id),
+      staleTime: 10 * 1000,
+      // trong 10s, hover vao se ko bi PreFetchAPI nua
+    })
+  }
+
   return (
     <div>
       <h1 className='text-lg'>Students</h1>
@@ -97,7 +106,7 @@ export default function Students() {
               </thead>
               <tbody>
                 {studentsQuery.data?.data.map(student => (
-                  <tr key={student.id} className='border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600'>
+                  <tr onMouseEnter={() => handlePrefetchStudent(student.id)} key={student.id} className='border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600'>
                     <td className='py-4 px-6'>{student.id}</td>
                     <td className='py-4 px-6'>
                       <img
