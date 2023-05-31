@@ -23,10 +23,18 @@ export default function Students() {
 
   const studentsQuery = useQuery({
     queryKey: ["students", page],
-    queryFn: ({ signal }) => getStudents(page, 10, signal),
+    queryFn: () => {
+      const controller = new AbortController()
+      setTimeout(() => {
+        controller.abort()
+      }, 1000)
+      return getStudents(page, 10, controller.signal)
+    },
     // staleTime: 10*6000,
     // cacheTime: 5 * 1000
-    keepPreviousData: true
+    keepPreviousData: true,
+    retry: 0
+
   })
 
   const deleteStudentMutation = useMutation({
