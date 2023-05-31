@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { deleteStudent, getStudents } from 'apis/Students.api'
 import classNames from 'classnames'
 import { Fragment } from 'react'
@@ -17,7 +17,7 @@ export default function Students() {
   //     setIsLoading(false)
   //   })
   // }, [])
-
+  const queryClient = useQueryClient()
   const queryString: { page?: string } = useQueryString();
   const page = Number(queryString.page) || 1
 
@@ -33,6 +33,11 @@ export default function Students() {
     mutationFn: (id: number | string) => deleteStudent(id),
     onSuccess: (_, id) => {
       toast.success(`delete thanh cong ${id}`)
+      // queryClient.invalidateQueries({ queryKey: ["students", page] })
+      //moi lan delete data, thi no se bao data cu, va thong bao cap nhat lai cai queryKey nay
+      // do do queryFn cua studentQuery se goi lai getStudent
+      // chua goi lai data, nen can bao la data cu de call API lai
+      // OK
     }
   })
 
